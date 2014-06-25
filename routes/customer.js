@@ -9,8 +9,17 @@ router.get('/gridData', function(req, res) {
         {name: "Nephi", age: 29},
         {name: "Enos", age: 34}] ;
 
-
+    res.send(result);
 
 });
+
+router.get('/gridColumns', function(req, res) {
+    var result= [ {field: 'name', displayName:'Name'}, {field: 'age', displayName:'Age'}] ;
+
+    res.send(result);
+
+});
+
+
 
 module.exports = router;
