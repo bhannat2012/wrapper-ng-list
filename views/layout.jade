@@ -1,0 +1,18 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/ng-grid.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+    script( type='text/javascript', src='/app/lib/jquery-1.9.1.js')
+    script( type='text/javascript', src='/app/lib/angular.min.js')
+    script( type='text/javascript', src='/app/lib/ng-grid.debug.js')
+
+    script( type='text/javascript', src='/app/controller.js')
+    script( type='text/javascript', src='/app/directives.js')
+    script( type='text/javascript', src='/app/services.js')
+    script( type='text/javascript', src='/app/app.js')
+
+  body(ng-app="myapp")
+    block content
