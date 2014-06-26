@@ -31,64 +31,138 @@ angular.module('myapp.directives', [])
             restrict: 'E',
             template: '<div class="gridStyle" ng-grid="gridOptions"></div>',
             scope: {},
+            controllerA: function ($scope, $element, $attrs) {
+                var attrs = $attrs;
+                $scope.filterOptions = {
+                    filterText: "",
+                    useExternalFilter: true
+                };
+                $scope.totalServerItems = 0;
+                $scope.pagingOptions = {
+                    pageSizes: [250, 500, 1000],
+                    pageSize: 250,
+                    currentPage: 1
+                };
+                $scope.setPagingData = function (data, page, pageSize, total) {
+                    var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+                    $scope.myData = pagedData;
+                    $scope.totalServerItems = total;
+                    if (!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                };
+                $scope.getPagedDataAsync = function (pageSize, page, searchText) {
+                    setTimeout(function () {
+                        var data;
+                        if (searchText) {
+                            var ft = searchText.toLowerCase();
+                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
+                                data = largeLoad.filter(function (item) {
+                                    return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
+                                });
+                                $scope.setPagingData(data, page, pageSize);
+                            });
+                        } else {
+                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
+                                $scope.setPagingData(largeLoad, page, pageSize);
+                            });
+                        }
+                    }, 100);
+                };
+
+                $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
+
+                $scope.$watch('pagingOptions', function (newVal, oldVal) {
+                    if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
+                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+                    }
+                }, true);
+                $scope.$watch('filterOptions', function (newVal, oldVal) {
+                    if (newVal !== oldVal) {
+                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+                    }
+                }, true);
+
+                $scope.gridOptions = {
+                    data: 'myData',
+                    enablePaging: true,
+                    showFooter: true,
+                    totalServerItems: 'totalServerItems',
+                    pagingOptions: $scope.pagingOptions,
+                    filterOptions: $scope.filterOptions
+                };
+            },
             controller: function ($scope, $element, $attrs) {
                 var attrs = $attrs;
                 $scope.myData = [];
                 $scope.gridOptions = {};
                 // var plg = new plugin();
 
-                configureGrid();
 
                 // filter and Pagination
-//                $scope.filterOptions = {
-//                    filterText: "",
-//                    useExternalFilter: true
-//                };
-//                $scope.totalServerItems = 0;
-//                $scope.pagingOptions = {
-//                    pageSizes: [5, 20, 30],
-//                    pageSize: 5,
-//                    currentPage: 1
-//                };
-//                $scope.setPagingData = function(data, page, pageSize){
-//                    var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
-//                    $scope.myData = pagedData;
-//                    $scope.totalServerItems = data.length;
-//                    if (!$scope.$$phase) {
-//                        $scope.$apply();
-//                    }
-//                };
-//                $scope.getPagedDataAsync = function (pageSize, page, searchText) {
-//                    setTimeout(function () {
-//                        var data;
-//                        if (searchText) {
-//                            var ft = searchText.toLowerCase();
-//                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
-//                                data = largeLoad.filter(function(item) {
-//                                    return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-//                                });
-//                                $scope.setPagingData(data,page,pageSize);
-//                            });
-//                        } else {
-//                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
-//                                $scope.setPagingData(largeLoad,page,pageSize);
-//                            });
-//                        }
-//                    }, 100);
-//                };
+                $scope.filterOptions = {
+                    filterText: "",
+                    useExternalFilter: true
+                };
+                $scope.totalServerItems = 0;
+                $scope.pagingOptions = {
+                    pageSizes: [5, 20, 30],
+                    pageSize: 5,
+                    currentPage: 1
+                };
+                $scope.setPagingData = function (data, page, pageSize, total) {
+                    // var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+                    $scope.myData = data;
+                    $scope.totalServerItems = total;
+                    debugger;
+                    setTimeout(function () {
+                        if (!$scope.$$phase && !$scope.$root.$$phase) {
+                            $scope.$apply();
+                            //  $scope.safeApply() ;
+                        }
+                    }, 100);
+                };
+                $scope.getPagedDataAsync = function (pageSize, page, searchText) {
+                    var params = {pageSize: pageSize, page: page };
+                    setTimeout(function () {
+                        var data;
+                        if (searchText) {
+                            var ft = searchText.toLowerCase();
+                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
+                                debugger;
+                                data = largeLoad.filter(function (item) {
+                                    return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
+                                });
+                                $scope.setPagingData(data, page, pageSize);
+                            });
+                        } else {
+                            $http.get(attrs.ajaxDataUrl, {params: params })
+                                .success(function (responce) {
+                                    $scope.setPagingData(responce.data, page, pageSize, responce.total);
+                                })
+                                .error(function (data) {
+                                    console.log(data);
+                                });
+                        }
+                    }, 100);
+                };
+
+
+                $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
 //
-//                $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-//
-//                $scope.$watch('pagingOptions', function (newVal, oldVal) {
-//                    if (newVal !== oldVal && newVal.currentPage !== oldVal.currentPage) {
-//                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-//                    }
-//                }, true);
-//                $scope.$watch('filterOptions', function (newVal, oldVal) {
-//                    if (newVal !== oldVal) {
-//                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-//                    }
-//                }, true);
+                $scope.$watch('pagingOptions', function (newVal, oldVal) {
+                    if (newVal !== oldVal
+                        || newVal.pageSize !== oldVal.pageSize
+                        || newVal.currentPage !== oldVal.currentPage) {
+                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+                    }
+                }, true);
+
+                $scope.$watch('filterOptions', function (newVal, oldVal) {
+                    if (newVal !== oldVal) {
+                        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+                    }
+                }, true);
 
 
                 function configureGrid() {
@@ -97,10 +171,18 @@ angular.module('myapp.directives', [])
                     xmlhttp.open("GET", attrs.ajaxColumnUrl, false);
                     xmlhttp.send();
                     var data = xmlhttp.response;
+
                     console.log(data);
+
                     gridOptions['columnDefs'] = data;
+                    gridOptions['enablePaging'] = true;
+                    gridOptions['showFooter'] = true;
+                    gridOptions['totalServerItems'] = 'totalServerItems';
+                    gridOptions['pagingOptions'] = $scope.pagingOptions;
+                    gridOptions['filterOptions'] = $scope.filterOptions;
+
                     $scope.gridOptions =gridOptions;
-                    loadData();
+                    //  loadData();
                 }
 
                 function loadData() {
@@ -112,9 +194,11 @@ angular.module('myapp.directives', [])
                             debugger;
                         });
                 }
+
+                configureGrid();
             },
             link: function (scope, element) {
-                debugger;
+                // debugger;
                 //
                 // scope.gridOptions ={};
                 //  $scope.gridOptions = { };

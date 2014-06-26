@@ -4,7 +4,7 @@ var _ = require('lodash-node');
 
 /* GET home page. */
 router.get('/gridData', function(req, res) {
-    // req.params
+    var params = req.query;
     var data = [
         {id:1,name: "Moroni", age: 50},
         {id:2,name: "Tiancum", age: 43},
@@ -37,18 +37,20 @@ router.get('/gridData', function(req, res) {
         {id:29,name: "Nephi", age: 29},
         {id:30,name: "Enos", age: 34}] ;
 
-    var result = _.filter(data, function (temp) {
-        return temp.age == 20;
-    });
-    res.send(result);
+//    var result = _.filter(data, function (temp) {
+//        return temp.age == 20;
+//    });
+    var result = data.slice((params.page - 1) * params.pageSize, params.page * params.pageSize);
+    res.send({data: result, total: data.length});
 
 });
 
 router.get('/gridColumns', function(req, res) {
     var result = [
-        {field: 'id', displayName: 'Sr', headerCellTemplate: 'Sr <br><input type="text" ng-model="ak"/>'},
+        {field: 'id', displayName: 'Sr'},
         {field: 'name', displayName:'Name'},
-                {field: 'age', displayName:'Age'}] ;
+        {field: 'age', displayName: 'Age'}
+    ];
 
     res.send(result);
 
