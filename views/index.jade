@@ -4,5 +4,5 @@ block content
     h1= title
     p Welcome to #{title}
     div(ng-controller="testCnt")
-        my-grid(ajax-data-url="/customer/gridData",ajax-column-url="/customer/gridColumns")
+        my-grid(ajax-data-url="/customer/gridData",ajax-grid-def="/customer/gridDef")
         button(ng-click="check()")

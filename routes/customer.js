@@ -45,14 +45,31 @@ router.get('/gridData', function(req, res) {
 
 });
 
-router.get('/gridColumns', function(req, res) {
-    var result = [
-        {field: 'id', displayName: 'Sr'},
-        {field: 'name', displayName:'Name'},
-        {field: 'age', displayName: 'Age'}
+router.get('/gridDef', function (req, res) {
+
+
+    var ngClass = "'colt' + col.index";
+    // {{showSearch?searchHeight:' +"searchHeight0"+'}}
+    var headerTemplate = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
+            //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
+            '<div ng-click="showMSG()" ng-class="' + ngClass + '" class="ngHeaderText">{{col.displayName}}' +
+            '</div>' +
+            '<div class="ngSortButtonDown" ng-show="col.showSortButtonDown()"></div>' +
+            '<div class="ngSortButtonUp" ng-show="col.showSortButtonUp()"></div>' +
+            '<div class="ngSortPriority">{{col.sortPriority}}</div>' +
+            '</div>' +
+            '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
+            + '<div class = "searchBoxes"><input type="text" ng-model="gridSearch[1].text" > </input> </div>'
+        ;
+
+
+    var columns = [
+        {field: 'id', displayName: 'Sr', width: "10%"},
+        {field: 'name', displayName: 'Name', width: "*", headerCellTemplate: headerTemplate},
+        {field: 'age', displayName: 'Age', width: "20%"}
     ];
 
-    res.send(result);
+    res.send(columns);
 
 });
 

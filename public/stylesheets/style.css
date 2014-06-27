@@ -1,1 +1,32 @@
-body{padding:50px;font:14px "Lucida Grande",Helvetica,Arial,sans-serif}a{color:#00B7FF}.gridStyle{border:1px solid #d4d4d4;width:400px;height:300px}
+body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
+}
+
+a {
+    color: #00B7FF
+}
+
+.gridStyle {
+    border: 1px solid #d4d4d4;
+    width: 400px;
+    height: 300px
+}
+
+searchHeight {
+    height: 100px
+}
+
+searchHeight {
+    height: 50px
+}
+
+.searchText {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%
+}
