@@ -13,7 +13,7 @@ angular.module('myapp.directives', ['ui.utils'])
             enableCellEditOnFocus: true,
             enablePaging: true,
             showFooter: true,
-            showFilter: true,
+            showFilter: false,
             enablePinning: true,
             enableColumnResize: true,
             enableSorting: false, headerRowHeight: 25
@@ -47,10 +47,7 @@ angular.module('myapp.directives', ['ui.utils'])
                 $scope.myData = [];
                 $scope.gridOptions = {};
                 $scope.showSearch = false;
-                $scope.gridSearch = [
-                    {},
-                    {text: ''}
-                ];
+                $scope.gridSearch = [ ];
                 $scope.getShowSearch = function () {
                     return $scope.showSearch;
                 };
@@ -58,7 +55,7 @@ angular.module('myapp.directives', ['ui.utils'])
                 // filter and Pagination
                 /*   $scope.filterOptions = {
                  filterText: "",
-                    useExternalFilter: true
+                 useExternalFilter: true
                  };*/
                 $scope.totalServerItems = 0;
                 $scope.pagingOptions = {
@@ -78,43 +75,61 @@ angular.module('myapp.directives', ['ui.utils'])
                         }
                     }, 100);
                 };
-                $scope.showMSG = function () {
-                    alert('click');
+                $scope.showMSG = function (evnt, column) {
+                    debugger;
+                    var searchObj = _.find($scope.gridSearch, {dataNM: column.field});
+                    if (!searchObj && column.searchText != '') {
+                        $scope.gridSearch.push({displayNM: column.displayName, dataNM: column.field,
+                            searchText: column.searchText});
+                    } else {
+                        if (column.searchText == '') {
+                            delete $scope.gridSearch[ _.findIndex($scope.gridSearch, {searchText: column.searchText})];
+                        } else {
+                            searchObj.searchText = column.searchText;
+                        }
+                    }
+
+                    $scope.getPagedDataAsync();
                 };
                 $scope.showSearchFN = function () {
                     // alert('show-search');
                     //debugger;
+                    console.log(JSON.stringify($scope.getShowSearch));
                     $scope.showSearch = !$scope.showSearch;
-                    //jQuery('.ngTopPanel').height(50);
-                    //   $scope.gridOptions.headerRowHeight=100
+                    $scope.getShowSearch = [];
                 };
-                $scope.getPagedDataAsync = function (pageSize, page, searchText) {
-                    var params = {pageSize: pageSize, page: page };
+                $scope.getPagedDataAsync = function () {
+                    var pageSize = $scope.pagingOptions.pageSize,
+                        page = $scope.pagingOptions.currentPage;
+                    //
+                    if (arguments.length == 2) {
+                        pageSize = arguments[0];
+                        page = arguments[1];
+                    }
+                    //
+                    debugger;
+                    var search = $scope.gridSearch && $scope.gridSearch.length > 0 ? _.compact($scope.gridSearch) : []
+                    var params = {
+                        pageSize: pageSize,
+                        page: page,
+                        search: search
+                    };
                     setTimeout(function () {
                         var data;
-                        if (searchText) {
-                            var ft = searchText.toLowerCase();
-                            $http.get(attrs.ajaxDataUrl).success(function (largeLoad) {
-                                //           debugger;
-                                data = largeLoad.filter(function (item) {
-                                    return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-                                });
-                                $scope.setPagingData(data, page, pageSize);
+
+                        $http.get(attrs.ajaxDataUrl, {params: params })
+                            .success(function (responce) {
+                                $scope.setPagingData(responce.data, page, pageSize, responce.total);
+                            })
+                            .error(function (data) {
+                                console.log(data);
                             });
-                        } else {
-                            $http.get(attrs.ajaxDataUrl, {params: params })
-                                .success(function (responce) {
-                                    $scope.setPagingData(responce.data, page, pageSize, responce.total);
-                                })
-                                .error(function (data) {
-                                    console.log(data);
-                                });
-                        }
+
                     }, 100);
                 };
 
 
-                $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
+                $scope.getPagedDataAsync();
 //
                 $scope.$watch('pagingOptions', function (newVal, oldVal) {
                     if (newVal !== oldVal
@@ -124,19 +139,12 @@ angular.module('myapp.directives', ['ui.utils'])
                     }
                 }, true);
 
-                /*$scope.$watch('filterOptions', function (newVal, oldVal) {
-                 if (newVal !== oldVal) {
-                 $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-                 }
-                }, true);
-                 */
-
                 function configureGrid() {
                     //debugger;
                     /*
                      var xmlhttp = new XMLHttpRequest();
                      xmlhttp.open("GET", attrs.ajaxGridDef, false);
-                    xmlhttp.send();
+                     xmlhttp.send();
                      */                   // var data = xmlhttp.response;
                     var data = getColumns();
 
@@ -151,7 +159,7 @@ angular.module('myapp.directives', ['ui.utils'])
                     gridOptions['pagingOptions'] = $scope.pagingOptions;
                     //   gridOptions['filterOptions'] = $scope.filterOptions;
 
-                    $scope.gridOptions =gridOptions;
+                    $scope.gridOptions = gridOptions;
                     //  loadData();
                 }
 
@@ -176,7 +184,7 @@ angular.module('myapp.directives', ['ui.utils'])
 
                     var ngClass = "'colt' + col.index";
                     // {{showSearch?searchHeight:' +"searchHeight0"+'}}
-                    var elemnt = ' <input  ui-event="{ blur : \'showMSG($event,col)\' }" class="searchText" ng-show="showSearch" type="text" ng-model="col.displayName" > </input>';
+                    var elemnt = ' <input  ui-event="{ blur : \'showMSG($event,col)\' }" class="searchText" ng-show="showSearch" type="text" ng-model="col.searchText" > </input>';
 
                     var headerT1 = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
                         //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
@@ -187,7 +195,6 @@ angular.module('myapp.directives', ['ui.utils'])
                             '<div class="ngSortPriority">{{col.sortPriority}}</div>' +
                             '</div>' +
                             '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
-
                         ;
 
 

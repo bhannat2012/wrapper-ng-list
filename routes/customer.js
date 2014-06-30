@@ -40,6 +40,9 @@ router.get('/gridData', function(req, res) {
 //    var result = _.filter(data, function (temp) {
 //        return temp.age == 20;
 //    });
+    var search = params.search;
+
+
     var result = data.slice((params.page - 1) * params.pageSize, params.page * params.pageSize);
     res.send({data: result, total: data.length});
 

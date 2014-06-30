@@ -23,7 +23,8 @@ searchHeight {
 
 .searchText {
     height: 13px;
-    margin: -2px 1px 0 1px
+    margin: -2px 1px 0 1px;
+    width: 100%
 }
 
 .hideSearchBoxes {
