@@ -1,7 +1,7 @@
 /**
  * Created by Akhil on 21-06-2014.
  */
-angular.module('myapp.directives', [])
+angular.module('myapp.directives', ['ui.utils'])
     .directive('myGrid', function ($http) {
 
         /* $scope.gridOptions = {
@@ -39,7 +39,7 @@ angular.module('myapp.directives', [])
 //            }) ;
         return {
             restrict: 'E',
-            template: '<div> <a> <i class="fa fa-fw" ng-click="showSearch()"></i> </a></div>' +
+            template: '<div> <a> <i class="fa fa-fw" ng-click="showSearchFN()"></i> </a></div>' +
                 '<div class="gridStyle" ng-grid="gridOptions"></div>',
             scope: {},
             controller: function ($scope, $element, $attrs) {
@@ -81,11 +81,11 @@ angular.module('myapp.directives', [])
                 $scope.showMSG = function () {
                     alert('click');
                 };
-                $scope.showSearch = function () {
+                $scope.showSearchFN = function () {
                     // alert('show-search');
-                    debugger;
-                    $scope.showSearch = true;
-                    jQuery('.ngTopPanel').height(50);
+                    //debugger;
+                    $scope.showSearch = !$scope.showSearch;
+                    //jQuery('.ngTopPanel').height(50);
                     //   $scope.gridOptions.headerRowHeight=100
                 };
                 $scope.getPagedDataAsync = function (pageSize, page, searchText) {
@@ -133,14 +133,18 @@ angular.module('myapp.directives', [])
 
                 function configureGrid() {
                     //debugger;
-                    var xmlhttp = new XMLHttpRequest();
+                    /*
+                     var xmlhttp = new XMLHttpRequest();
                     xmlhttp.open("GET", attrs.ajaxGridDef, false);
                     xmlhttp.send();
-                    var data = xmlhttp.response;
+                     */                   // var data = xmlhttp.response;
+                    var data = getColumns();
+
 
                     console.log(data);
 
-                    gridOptions['columnDefs'] = data;
+                    gridOptions['columnDefs'] = getColumns();
+                    //  gridOptions['columnDefs'] = data;
                     gridOptions['enablePaging'] = true;
                     gridOptions['showFooter'] = true;
                     gridOptions['totalServerItems'] = 'totalServerItems';
@@ -162,6 +166,38 @@ angular.module('myapp.directives', [])
                 }
 
                 configureGrid();
+
+                $scope.searchData = function () {
+                    debugger;
+                    alert(' Searching...');
+                };
+
+                function getColumns() {
+
+                    var ngClass = "'colt' + col.index";
+                    // {{showSearch?searchHeight:' +"searchHeight0"+'}}
+                    var elemnt = ' <input  ui-event="{ blur : \'showMSG($event,col)\' }" class="searchText" ng-show="showSearch" type="text" ng-model="col.displayName" > </input>';
+
+                    var headerT1 = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
+                        //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
+                        '<div   ng-class="' + ngClass + '" class="ngHeaderText"> <span ng-show="!showSearch"> {{col.displayName}} </span> ';
+                    var headerT2 = '</div>' +
+                            '<div class="ngSortButtonDown" ng-show="col.showSortButtonDown()"></div>' +
+                            '<div class="ngSortButtonUp" ng-show="col.showSortButtonUp()"></div>' +
+                            '<div class="ngSortPriority">{{col.sortPriority}}</div>' +
+                            '</div>' +
+                            '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
+
+                        ;
+
+
+                    var columns = [
+                        {field: 'id', displayName: 'Sr', width: "10%"},
+                        {field: 'name', displayName: 'Name', width: "*", headerCellTemplate: headerT1 + elemnt + headerT2},
+                        {field: 'age', displayName: 'Age', width: "20%", headerCellTemplate: headerT1 + elemnt + headerT2}
+                    ];
+                    return columns;
+                }
             },
             link: function (scope, element) {
                 // debugger;
