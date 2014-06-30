@@ -1,7 +1,7 @@
 /**
  * Created by Akhil on 21-06-2014.
  */
-angular.module('myapp.directives', ['ui.utils'])
+angular.module('myapp.directives', [  'ngGrid', 'ui.utils'])
     .directive('myGrid', function ($http) {
 
         /* $scope.gridOptions = {
@@ -10,7 +10,7 @@ angular.module('myapp.directives', ['ui.utils'])
          };*/
 
         var gridOptions = { data: 'myData',
-            enableCellEditOnFocus: true,
+            enableCellEditOnFocus: false,
             enablePaging: true,
             showFooter: true,
             showFilter: false,
@@ -79,16 +79,17 @@ angular.module('myapp.directives', ['ui.utils'])
                     debugger;
                     var searchObj = _.find($scope.gridSearch, {dataNM: column.field});
                     if (!searchObj && column.searchText != '') {
-                        $scope.gridSearch.push({displayNM: column.displayName, dataNM: column.field,
+                        $scope.gridSearch.push({  dataNM: column.field,
                             searchText: column.searchText});
                     } else {
                         if (column.searchText == '') {
-                            delete $scope.gridSearch[ _.findIndex($scope.gridSearch, {searchText: column.searchText})];
+                            delete $scope.gridSearch[ _.findIndex($scope.gridSearch, {dataNM: column.field})];
+                            $scope.gridSearch = _.compact($scope.gridSearch);
                         } else {
                             searchObj.searchText = column.searchText;
                         }
                     }
-
+                    // console.log(JSON.stringify($scope.gridSearch));
                     $scope.getPagedDataAsync();
                 };
                 $scope.showSearchFN = function () {
@@ -108,7 +109,7 @@ angular.module('myapp.directives', ['ui.utils'])
                     }
                     //
                     debugger;
-                    var search = $scope.gridSearch && $scope.gridSearch.length > 0 ? _.compact($scope.gridSearch) : []
+                    var search = $scope.gridSearch && $scope.gridSearch.length > 0 ? $scope.gridSearch : []
                     var params = {
                         pageSize: pageSize,
                         page: page,
@@ -128,7 +129,6 @@ angular.module('myapp.directives', ['ui.utils'])
                     }, 100);
                 };
 
-
                 $scope.getPagedDataAsync();
 //
                 $scope.$watch('pagingOptions', function (newVal, oldVal) {
@@ -141,14 +141,12 @@ angular.module('myapp.directives', ['ui.utils'])
 
                 function configureGrid() {
                     //debugger;
-                    /*
-                     var xmlhttp = new XMLHttpRequest();
+
+                    var xmlhttp = new XMLHttpRequest();
                      xmlhttp.open("GET", attrs.ajaxGridDef, false);
                      xmlhttp.send();
-                     */                   // var data = xmlhttp.response;
-                    var data = getColumns();
-
-
+                    var data = xmlhttp.response;
+                    // var data = getColumns();
                     console.log(data);
 
                     gridOptions['columnDefs'] = getColumns();
@@ -196,7 +194,6 @@ angular.module('myapp.directives', ['ui.utils'])
                             '</div>' +
                             '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
                         ;
-
 
                     var columns = [
                         {field: 'id', displayName: 'Sr', width: "10%"},
