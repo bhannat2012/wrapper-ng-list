@@ -135,7 +135,7 @@ angular.module('myapp.directives', ['ui.utils'])
                     //debugger;
                     /*
                      var xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("GET", attrs.ajaxGridDef, false);
+                     xmlhttp.open("GET", attrs.ajaxGridDef, false);
                     xmlhttp.send();
                      */                   // var data = xmlhttp.response;
                     var data = getColumns();
