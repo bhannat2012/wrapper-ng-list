@@ -2,7 +2,7 @@
  * Created by Akhil on 21-06-2014.
  */
 angular.module('myapp.directives', ['ui.utils'])
-    .directive('myGrid', function ($http) {
+    .directive('myGrid', function ($http, printService) {
 
         /* $scope.gridOptions = {
          data: 'myData',
@@ -39,7 +39,10 @@ angular.module('myapp.directives', ['ui.utils'])
 //            }) ;
         return {
             restrict: 'E',
-            template: '<div> <a> <i class="fa fa-fw" ng-click="showSearchFN()"></i> </a></div>' +
+            template: '<div> ' +
+                '<a> <i class="fa fa-fw" ng-click="showSearchFN()"> Search</i> </a>' +
+                '<a> <i class="fa fa-fw" ng-click="printList()"> Print</i> </a>' +
+                '</div>' +
                 '<div class="gridStyle" ng-grid="gridOptions"></div>',
             scope: {},
             controller: function ($scope, $element, $attrs) {
@@ -62,6 +65,10 @@ angular.module('myapp.directives', ['ui.utils'])
                     pageSizes: [5, 20, 30],
                     pageSize: 5,
                     currentPage: 1
+                };
+                $scope.printList = function () {
+                    debugger;
+                    printService.print();
                 };
                 $scope.setPagingData = function (data, page, pageSize, total) {
                     // var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
