@@ -50,28 +50,27 @@ router.get('/gridData', function(req, res) {
 
 router.get('/gridDef', function (req, res) {
 
-
     var ngClass = "'colt' + col.index";
     // {{showSearch?searchHeight:' +"searchHeight0"+'}}
-    var headerTemplate = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
-            //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
-            '<div ng-click="showMSG()" ng-class="' + ngClass + '" class="ngHeaderText">{{col.displayName}}' +
-            '</div>' +
+    var elemnt = ' <input  ui-event="{ blur : \'showMSG($event,col)\' }" class="searchText" ng-show="showSearch" type="text" ng-model="col.searchText" > </input>';
+
+    var headerT1 = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
+        //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
+        '<div   ng-class="' + ngClass + '" class="ngHeaderText"> <span ng-show="!showSearch"> {{col.displayName}} </span> ';
+    var headerT2 = '</div>' +
             '<div class="ngSortButtonDown" ng-show="col.showSortButtonDown()"></div>' +
             '<div class="ngSortButtonUp" ng-show="col.showSortButtonUp()"></div>' +
             '<div class="ngSortPriority">{{col.sortPriority}}</div>' +
             '</div>' +
             '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
-            + '<div class = "searchBoxes"><input type="text" ng-model="gridSearch[1].text" > </input> </div>'
         ;
-
 
     var columns = [
         {field: 'id', displayName: 'Sr', width: "10%"},
-        {field: 'name', displayName: 'Name', width: "*", headerCellTemplate: headerTemplate},
-        {field: 'age', displayName: 'Age', width: "20%"}
+        {field: 'name', displayName: 'Name', width: "*", headerCellTemplate: headerT1 + elemnt + headerT2},
+        {field: 'age', displayName: 'Age', width: "20%", headerCellTemplate: headerT1 + elemnt + headerT2}
     ];
-
+    //  return columns;
     res.send(columns);
 
 });
@@ -79,3 +78,88 @@ router.get('/gridDef', function (req, res) {
 
 
 module.exports = router;
+
+// Employee
+
+/*
+ def gridData(){
+ def page = Integer.parseInt(params.page), pageSize = Integer.parseInt(params.pageSize) ;
+ def search = JSON.parse(params.search);
+ def hqxl = new ArrayList<String>();
+
+ if(search.size() > 0 ) {
+ search.each {p->
+ if(p.searchText) {
+ hqxl.add ( 'e.'+ p.dataNM.trim() + "='" +p.searchText + "'" ) ;
+ }
+ }
+ }
+ def hqxlTxt = '' ;
+ if(hqxl.size() >0 ) {
+ hqxlTxt = 'from Employee as e  where ' +  hqxl.join(' and ') ;
+ }else{
+ hqxlTxt = 'from Employee as e ' ;
+ }
+
+ def results =Employee.findAll(hqxlTxt ,[max: pageSize, offset: (page-1) * pageSize])
+ def respo =[data: results, total: Employee.findAll(hqxlTxt).size()];
+ render respo as JSON
+ }
+ def gridDataA(){
+ def page = Integer.parseInt(params.page), pageSize = Integer.parseInt(params.pageSize) ;
+ def search = JSON.parse(params.search);
+
+
+ def c = Employee.createCriteria() ;
+
+ // c.maxResults(pageSize)  ;
+
+
+
+
+ def data = c.list (max: pageSize, offset: (page-1) * pageSize) {}  ;
+ //
+ //def result=[];
+
+ */
+/*
+ for(def  i = (page-1) * pageSize ; i<   page * pageSize; i++){
+ result.push( data[i]) ;
+ }
+ *//*
+
+ // def result = data.slice((params.page - 1) * params.pageSize, params.page * params.pageSize);
+ def respo =[data: data, total: Employee.count()];
+
+ render respo as JSON
+
+ }
+
+ def gridDef(){
+ def ngClass = "'colt' + col.index";
+ // {{showSearch?searchHeight:' +"searchHeight0"+'}}
+ def elemnt = ' <input  ui-event="{ blur : \'showMSG($event,col)\' }" class="searchText" ng-show="showSearch" type="text" ng-model="col.searchText" > </input>';
+
+ def headerT1 = '<div class="ngHeaderSortColumn {{col.headerClass}} searchHeight " ng-style="{cursor: col.cursor}" ng-class="{ ngSorted: !noSortVisible }">' +
+ //'<div ng-click="col.sort($event)" ng-class="' + ngClass +'" class="ngHeaderText">{{col.displayName}}</div>'+
+ '<div   ng-class="' + ngClass + '" class="ngHeaderText"> <span ng-show="!showSearch"> {{col.displayName}} </span> ';
+ def headerT2 = '</div>' +
+ '<div class="ngSortButtonDown" ng-show="col.showSortButtonDown()"></div>' +
+ '<div class="ngSortButtonUp" ng-show="col.showSortButtonUp()"></div>' +
+ '<div class="ngSortPriority">{{col.sortPriority}}</div>' +
+ '</div>' +
+ '<div ng-show="col.resizable" class="ngHeaderGrip" ng-click="col.gripClick($event)" ng-mousedown="col.gripOnMouseDown($event)"></div>'
+ ;
+
+ def columns = [
+ [field: 'id', displayName: 'Sr', width: "10%"],
+ [field: 'name', displayName: 'Name', width: "*", headerCellTemplate: headerT1 + elemnt + headerT2],
+ [field: 'age', displayName: 'Age', width: "20%", headerCellTemplate: headerT1 + elemnt + headerT2]
+ ];
+
+ render columns as JSON;
+ }
+ */
+
+
+

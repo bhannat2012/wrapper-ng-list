@@ -10,7 +10,7 @@ angular.module('myapp.directives', ['ui.utils'])
          };*/
 
         var gridOptions = { data: 'myData',
-            enableCellEditOnFocus: true,
+            enableCellEditOnFocus: false,
             enablePaging: true,
             showFooter: true,
             showFilter: false,
@@ -39,10 +39,7 @@ angular.module('myapp.directives', ['ui.utils'])
 //            }) ;
         return {
             restrict: 'E',
-            template: '<div> ' +
-                '<a> <i class="fa fa-fw" ng-click="showSearchFN()"> Search</i> </a>' +
-                '<a> <i class="fa fa-fw" ng-click="printList()"> Print</i> </a>' +
-                '</div>' +
+            template: '<div> <a> <i class="fa fa-fw" ng-click="showSearchFN()"></i> </a></div>' +
                 '<div class="gridStyle" ng-grid="gridOptions"></div>',
             scope: {},
             controller: function ($scope, $element, $attrs) {
@@ -86,16 +83,17 @@ angular.module('myapp.directives', ['ui.utils'])
                     debugger;
                     var searchObj = _.find($scope.gridSearch, {dataNM: column.field});
                     if (!searchObj && column.searchText != '') {
-                        $scope.gridSearch.push({displayNM: column.displayName, dataNM: column.field,
+                        $scope.gridSearch.push({  dataNM: column.field,
                             searchText: column.searchText});
                     } else {
                         if (column.searchText == '') {
-                            delete $scope.gridSearch[ _.findIndex($scope.gridSearch, {searchText: column.searchText})];
+                            delete $scope.gridSearch[ _.findIndex($scope.gridSearch, {dataNM: column.field})];
+                            $scope.gridSearch = _.compact($scope.gridSearch);
                         } else {
                             searchObj.searchText = column.searchText;
                         }
                     }
-
+                    // console.log(JSON.stringify($scope.gridSearch));
                     $scope.getPagedDataAsync();
                 };
                 $scope.showSearchFN = function () {
@@ -115,7 +113,7 @@ angular.module('myapp.directives', ['ui.utils'])
                     }
                     //
                     debugger;
-                    var search = $scope.gridSearch && $scope.gridSearch.length > 0 ? _.compact($scope.gridSearch) : []
+                    var search = $scope.gridSearch && $scope.gridSearch.length > 0 ? $scope.gridSearch : []
                     var params = {
                         pageSize: pageSize,
                         page: page,
@@ -148,14 +146,12 @@ angular.module('myapp.directives', ['ui.utils'])
 
                 function configureGrid() {
                     //debugger;
-                    /*
-                     var xmlhttp = new XMLHttpRequest();
+
+                    var xmlhttp = new XMLHttpRequest();
                      xmlhttp.open("GET", attrs.ajaxGridDef, false);
                      xmlhttp.send();
-                     */                   // var data = xmlhttp.response;
-                    var data = getColumns();
-
-
+                    var data = xmlhttp.response;
+                    // var data = getColumns();
                     console.log(data);
 
                     gridOptions['columnDefs'] = getColumns();
